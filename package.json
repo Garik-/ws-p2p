@@ -1,11 +1,11 @@
 {
-  "name": "dao-websocket-server",
-  "description": "Dao Casino Transport WebSocket Server",
+  "name": "ws-p2p",
+  "description": "WebSocket IPFS bike",
   "main": "./lib/index",
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DaoCasino/dc-monorepo"
+    "url": "https://github.com/Garik-/ws-p2p"
   },
   "contributors": [
     "Gar|k <garik.djan@gmail.com>"
