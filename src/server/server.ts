@@ -4,6 +4,7 @@ import { Logger } from 'dc-logging'
 import { RequestMessage, ResponseMessage, ServerEmitParams, Peer, StartRoomParams, LeaveRoomParams, SendToParams, GetPeersParams, HasPeerParams, BroadcastParams } from './Interfaces'
 import { EventEmitter } from 'events'
 import { Method } from './Constants'
+import moment from 'moment'
 
 dotenv.config()
 
@@ -21,14 +22,26 @@ const parseRequest = (data: string): RequestMessage => JSON.parse(data)
 const createResponse = (response: ResponseMessage): string => JSON.stringify(response)
 const rooms = {}
 
+const logResponse = (peer: Peer, response: ResponseMessage): void => {
+    const time: string = moment().format('DD/MMM/YYYY:HH:mm:ss ZZ')
+    const fgGreen = "\x1b[32m"
+    const fgYellow = "\x1b[33m"
+    const reset = "\x1b[0m"
+    const fgBlue = "\x1b[36m"
+    const fgRed = "\x1b[31m"
+    log.info(`${peer.id}\t${response.id.toString(16)} - ${fgGreen}[${time}]${reset}\t${fgYellow}${response.method}${reset} -> ${fgBlue}${response.result}${reset}${response.error ? ' ' + fgRed + response.error + reset : ''}`)
+}
+
 const sendTo = (peer: Peer, response: ResponseMessage) => {
     const jsonResponse: string = createResponse(response)
     const { socket } = peer
     if(socket.readyState === WebSocket.OPEN) { // TODO: возможно надо подписаться на событие ON
         socket.send(jsonResponse)
+        logResponse(peer, response)
     } else {
         socket.on('open', () => {
             socket.send(jsonResponse)
+            logResponse(peer, response)
         })
     }
 }
@@ -43,9 +56,11 @@ const broadcast = (roomName: string, response: ResponseMessage, except: string =
             }
             if (socket.readyState === WebSocket.OPEN) {
                 socket.send(jsonResponse)
+                logResponse(peer, response)
             } else {
                 socket.on('open', () => {
                     socket.send(jsonResponse)
+                    logResponse(peer, response)
                 })
             }
         }
@@ -93,13 +108,13 @@ class WebSocketRPC {
         if (!(name in rooms)) {
             rooms[name] = new Map()
         } else {
-            // TODO: Надо послать join всем чувакам из комнаты
-            broadcast(name, {
-                method: Method.PEER_JOIN,
-                id: request.id,
-                result: peer.id,
-                error: null
-            })
+            // // TODO: Надо послать join всем чувакам из комнаты
+            // broadcast(name, {
+            //     method: Method.PEER_JOIN,
+            //     id: request.id,
+            //     result: peer.id,
+            //     error: null
+            // })
         }
         rooms[name].set(peer.id, peer)
         log.debug(rooms)
@@ -107,6 +122,14 @@ class WebSocketRPC {
         // TODO: надо послать чуваку обратно его ID что бы он его сохранил
         sendTo(peer, {
             method: Method.START_ROOM,
+            id: request.id,
+            result: peer.id,
+            error: null
+        })
+
+        // переместил оповещение после того как уже пир подключился к комнате
+        broadcast(name, {
+            method: Method.PEER_JOIN,
             id: request.id,
             result: peer.id,
             error: null
@@ -133,6 +156,8 @@ class WebSocketRPC {
                     error: null,
                     id: request.id
                 })
+            } else {
+                error = `No ${peer.id} in room ${name}`
             }
         }
         else {

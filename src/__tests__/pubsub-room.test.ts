@@ -1,11 +1,16 @@
-import * as dotenv from 'dotenv'
 import WebSocket from 'ws'
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
-import { Room } from '../websocket-pubsub-room'
+import { Room } from '../../ws/pubsub-room'
+import { Logger } from 'dc-logging'
+import { config, TransportType } from "dc-configs"
 
+const log = new Logger('Test:')
 const ROOM_NAME = 'room-name'
 const NUM_CLIENTS = 10 // нужно четное число
+
+const defaultSwarm = config.default.transportServersSwarm[TransportType.WS]
+const WEB_SOCKET_SERVER = defaultSwarm[0] // TODO: need select or balance
 
 function sleep(ms) {
     return new Promise(resolve => {
@@ -13,7 +18,6 @@ function sleep(ms) {
     })
   }
 
-dotenv.config()
 
 const createConnection = (address: string): Promise<WebSocket> => {
  return new Promise((resolve, reject) => {
@@ -33,7 +37,7 @@ describe('WebSocket client', () => {
     const peersInRoom: string[] = []
     it('Create connections', async () => {
         for (let i = 0; i < NUM_CLIENTS; i++) {
-            const ws = new WebSocket(`ws://localhost:${process.env.PORT}`)
+            const ws = new WebSocket(WEB_SOCKET_SERVER)
             expect(ws).to.be.an.instanceof(WebSocket)
             clientSockets.push(ws)
         }
@@ -45,16 +49,16 @@ describe('WebSocket client', () => {
             const room = new Room(ws, ROOM_NAME)
 
             room.on(Room.EVENT_PEER_JOIN, peer => {
-                console.log(`Client #${i}: Peer joined the room`, peer)
+                log.debug(`Client #${i}: Peer joined the room`, peer)
             })
 
             room.on(Room.EVENT_PEER_LEFT, peer => {
-                console.log(`Client #${i}: Peer left...`, peer)
+                log.debug(`Client #${i}: Peer left...`, peer)
             })
 
             // now started to listen to room
             room.on(Room.EVENT_SUBSCRIBED, () => {
-                console.log(`Client #${i}: Now connected!`)
+                log.debug(`Client #${i}: Now connected!`)
             })
 
             roomIntefaces.push(room)

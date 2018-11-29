@@ -2,6 +2,9 @@ import WebSocket from 'ws'
 import { EventEmitter } from 'events'
 import { ResponseMessage, RequestMessage, SendToParams, LeaveRoomParams, StartRoomParams, GetPeersParams, HasPeerParams, BroadcastParams } from './Interfaces'
 import { Method } from './Constants'
+import { Logger } from 'dc-logging'
+
+const log = new Logger('Room:')
 
 export class Room extends EventEmitter {
     public static EVENT_PEER_JOIN: string = 'peer joined'
@@ -117,7 +120,7 @@ export class Room extends EventEmitter {
                         break
                 }
             } catch (e) { // TODO: надо обрабатывать
-                console.error(e)
+                log.error(e)
                 this.emit('error', e)
             }
         })
