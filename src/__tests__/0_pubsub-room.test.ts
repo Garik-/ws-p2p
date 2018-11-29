@@ -1,16 +1,16 @@
 import WebSocket from 'ws'
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
-import { Room } from '../../ws/pubsub-room'
+import { Room } from '../pubsub-room'
 import { Logger } from 'dc-logging'
-import { config, TransportType } from "dc-configs"
+// import { config, TransportType } from "dc-config"
 
 const log = new Logger('Test:')
 const ROOM_NAME = 'room-name'
 const NUM_CLIENTS = 10 // нужно четное число
 
-const defaultSwarm = config.default.transportServersSwarm[TransportType.WS]
-const WEB_SOCKET_SERVER = defaultSwarm[0] // TODO: need select or balance
+// const defaultSwarm = config.default.transportServersSwarm[TransportType.WS]
+const WEB_SOCKET_SERVER = 'ws://localhost:8888/' // TODO: need select or balance
 
 function sleep(ms) {
     return new Promise(resolve => {

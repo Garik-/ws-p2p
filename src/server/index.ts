@@ -1,9 +1,8 @@
 import * as dotenv from 'dotenv'
 import WebSocket from 'ws'
 import { Logger } from 'dc-logging'
-import { RequestMessage, ResponseMessage, ServerEmitParams, Peer, StartRoomParams, LeaveRoomParams, SendToParams, GetPeersParams, HasPeerParams, BroadcastParams } from '../Interfaces'
+import { RequestMessage, ResponseMessage, ServerEmitParams, Peer, StartRoomParams, LeaveRoomParams, SendToParams, GetPeersParams, HasPeerParams, BroadcastParams, Method } from '../Interfaces'
 import { EventEmitter } from 'events'
-import { Method } from '../Interfaces'
 import moment from 'moment'
 
 dotenv.config()
