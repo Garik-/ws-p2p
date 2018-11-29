@@ -1,4 +1,5 @@
 import WebSocket from 'ws'
+export * from './Constants'
 
 export interface RequestMessage {
     from?: string
