@@ -49,6 +49,7 @@
   },
   "scripts": {
     "start:server": "ts-node src/server/index.ts",
+    "start:test": "ts-node src/__tests__/1_transport.test",
     "build": "tsc --build",
     "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
     "format": "prettier --single-quote --write **/src/**/*.ts",

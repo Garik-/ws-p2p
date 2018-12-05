@@ -84,6 +84,24 @@ describe('WebSocket client', () => {
         }
     })
 
+    it('Direct SendTo messages', async () => {
+        for(let i = 0; i < roomIntefaces.length ; i = i + 2) {
+            const client1 = roomIntefaces[i]
+            const client2 = roomIntefaces[i + 1]
+            const _message = 'privet lol'
+
+            client2.once('message', message => {
+                console.log(`Client #${i} say ${message.data} to client #${ i + 1 }`)
+                expect(message.data).to.be.equal(_message)
+            })
+
+            const peer = await client2.getPeerId()
+            const status = await client1.sendDirect(peer, _message)
+            /* tslint:disable-next-line  */
+            expect(status).to.be.true
+        }
+    })
+
     it('Test set many onMessage listeners', async () => {
         for(let i = 0; i < roomIntefaces.length ; i = i + 2) {
             const client1 = roomIntefaces[i]

@@ -155,6 +155,10 @@ export class Room extends EventEmitter {
         return this._recv(id, Method.SEND_TO)
     }
 
+    sendDirect(peer: string, message: string): Promise<boolean> {
+        // TODO: 1 получить адрес чувака 2 сделать соединение 3 отправить сообщение
+    }
+
     leave(): Promise<boolean> {
         const id = this._getId()
         const params: LeaveRoomParams = {
@@ -210,5 +214,29 @@ export class Room extends EventEmitter {
                 })
             }
         })
+    }
+}
+
+
+class WsDirectServer {
+    private wss: WebSocket.Server
+    public startServer(options) {
+        this.wss = new WebSocket.Server(options)
+        log.info(`Room direct WebSocketServer listening on port ${this.wss.adress().port}`)
+
+        this.wss.on('connection', this._onConnection)
+
+        process.on('SIGTERM', this.stopServer)
+        process.on('SIGINT', this.stopServer)
+    }
+
+    private stopServer() {
+        this.wss.close(() => {
+            log.info('WebSockerRoomServer stoped')
+        })
+    }
+
+    private _onConnection(clientSocket: WebSocket) {
+
     }
 }
